@@ -43,5 +43,13 @@
 * [ ] [IERC1594.sol](contracts/Shared/IERC1594.sol)
 * [ ] [Operated.sol](contracts/Shared/Operated.sol)
 * [ ] [Owned.sol](contracts/Shared/Owned.sol)
+  * [ ] Check all derived contracts call the `initOwned(...)` function
+    * [ ] [contracts/DreamFramesToken/MakerDAOETHUSDPriceFeedSimulator.sol](contracts/DreamFramesToken/MakerDAOETHUSDPriceFeedSimulator.sol)
+    * [ ] [contracts/DreamFramesToken/DreamFramesCrowdsale.sol](contracts/DreamFramesToken/DreamFramesCrowdsale.sol)
+    * [ ] [contracts/Shared/Operated.sol](contracts/Shared/Operated.sol)
+    * [ ] [contracts/RoyaltyToken/RoyaltyTokenCrowdsale.sol](contracts/RoyaltyToken/RoyaltyTokenCrowdsale.sol)
+    * [ ] [contracts/Shared/Operated.sol](contracts/Shared/Operated.sol)
+      * [ ] [contracts/DreamFramesToken/BonusList.sol](contracts/DreamFramesToken/BonusList.sol)
+      * [ ] [contracts/RoyaltyToken/WhiteList.sol](contracts/RoyaltyToken/WhiteList.sol)
 * [ ] [SafeMath.sol](contracts/Shared/SafeMath.sol)
 * [ ] [SupportsInterfaceWithLookup.sol](contracts/Shared/SupportsInterfaceWithLookup.sol)
