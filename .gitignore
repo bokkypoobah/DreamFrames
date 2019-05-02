@@ -9,3 +9,8 @@ private
 *.pyc
 build
 node_modules
+
+boksTest/testchain/geth
+boksTest/testchain/geth.ipc
+boksTest/testchain/history
+ipfs

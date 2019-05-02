@@ -1,0 +1,101 @@
+ # Account                                             EtherBalanceChange                          Token Name
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+ 0 0xa00af22d07c87d96eeeb0ed583f8f6ac7812827e        0.000000000000000000           0.000000000000000000 Miner
+ 1 0xa11aae29840fbb5c86e6fd4cf809eba183aef433        0.000000000000000000           0.000000000000000000 Deployer
+ 2 0xa22ab8a9d641ce77e06d98b7d7065d324d3d6976        0.000000000000000000           0.000000000000000000 User1
+ 3 0xa33a6c312d9ad0e0f2e95541beed0cc081621fd0        0.000000000000000000           0.000000000000000000 User2
+ 4 0xa44a08d3f6933c69212114bb66e2df1813651844        0.000000000000000000           0.000000000000000000 User3
+ 5 0xa55a151eb00fded1634d27d1127b4be4627079ea        0.000000000000000000           0.000000000000000000 UI Fee Account
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+                                                                                    0.000000000000000000 Total Token Balances
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+
+
+---------- Deploy Group #1 - TokenFactory ----------
+ # Account                                             EtherBalanceChange                          Token Name
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+ 0 0xa00af22d07c87d96eeeb0ed583f8f6ac7812827e        0.010365010000000000           0.000000000000000000 Miner
+ 1 0xa11aae29840fbb5c86e6fd4cf809eba183aef433       -0.010365010000000000           0.000000000000000000 Deployer
+ 2 0xa22ab8a9d641ce77e06d98b7d7065d324d3d6976        0.000000000000000000           0.000000000000000000 User1
+ 3 0xa33a6c312d9ad0e0f2e95541beed0cc081621fd0        0.000000000000000000           0.000000000000000000 User2
+ 4 0xa44a08d3f6933c69212114bb66e2df1813651844        0.000000000000000000           0.000000000000000000 User3
+ 5 0xa55a151eb00fded1634d27d1127b4be4627079ea        0.000000000000000000           0.000000000000000000 UI Fee Account
+ 6 0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d        0.000000000000000000           0.000000000000000000 TokenFactory
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+                                                                                    0.000000000000000000 Total Token Balances
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+
+PASS Deploy Group #1 - TokenFactory - TokenFactory
+tokenFactoryTx status=0x1 Success gas=4000000 gasUsed=2073002 costETH=0.01036501 costUSD=1.4087085091 @ ETH/USD=135.91 gasPrice=5 gwei block=6448 txIx=0 txId=0x9fc343d0aa7f17c7ab0170964617164ed7cf0610402dd435ce0756a65e5140ec @ 1553231799 Fri, 22 Mar 2019 05:16:39 UTC
+
+factoryContractAddress=0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d
+factory.owner=0xa11aae29840fbb5c86e6fd4cf809eba183aef433
+factory.newOwner=0x0000000000000000000000000000000000000000
+factory.minimumFee=0.1 ETH
+factory.newAddress=0x0000000000000000000000000000000000000000
+factory.numberOfChildren=0
+
+---------- Deploy Group #1 - Deploy Second Token ----------
+factoryContractAddress=0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d
+get TokenDeployed 0 #6450 {"decimals":"18","name":"Test","owner":"0xa11aae29840fbb5c86e6fd4cf809eba183aef433","ownerFee":"5000000000000000000","symbol":"TEST","token":"0x3009aea8fd86721a76b28be3e85ae54d347ee2bd","totalSupply":"1e+27","uiFee":"4999999999999999999","uiFeeAccount":"0xa55a151eb00fded1634d27d1127b4be4627079ea"}
+tokenContract=#1 ["0x3009aea8fd86721a76b28be3e85ae54d347ee2bd"]
+ # Account                                             EtherBalanceChange                          Token Name
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+ 0 0xa00af22d07c87d96eeeb0ed583f8f6ac7812827e        0.015774340000000000           0.000000000000000000 Miner
+ 1 0xa11aae29840fbb5c86e6fd4cf809eba183aef433        4.989634990000000000           0.000000000000000000 Deployer
+ 2 0xa22ab8a9d641ce77e06d98b7d7065d324d3d6976      -10.005409329999999999  1000000000.000000000000000000 User1
+ 3 0xa33a6c312d9ad0e0f2e95541beed0cc081621fd0        0.000000000000000000           0.000000000000000000 User2
+ 4 0xa44a08d3f6933c69212114bb66e2df1813651844        0.000000000000000000           0.000000000000000000 User3
+ 5 0xa55a151eb00fded1634d27d1127b4be4627079ea        4.999999999999999999           0.000000000000000000 UI Fee Account
+ 6 0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d        0.000000000000000000           0.000000000000000000 TokenFactory
+ 7 0x3009aea8fd86721a76b28be3e85ae54d347ee2bd        0.000000000000000000           0.000000000000000000 Token 'TEST' 'Test'
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+                                                                           1000000000.000000000000000000 Total Token Balances
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+
+PASS Deploy Group #1 - Deploy Second Token - Token
+deployToken_1Tx status=0x1 Success gas=2000000 gasUsed=1081866 costETH=0.00540933 costUSD=0.7351820403 @ ETH/USD=135.91 gasPrice=5 gwei block=6450 txIx=0 txId=0x9effb35982a91841aee2e675d9e6ed4ec49f43caf3e41d4849e42f538806c20c @ 1553231801 Fri, 22 Mar 2019 05:16:41 UTC
+
+factoryContractAddress=0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d
+factory.owner=0xa11aae29840fbb5c86e6fd4cf809eba183aef433
+factory.newOwner=0x0000000000000000000000000000000000000000
+factory.minimumFee=0.1 ETH
+factory.newAddress=0x0000000000000000000000000000000000000000
+factory.numberOfChildren=1
+factory.children(0)=0x3009aea8fd86721a76b28be3e85ae54d347ee2bd
+TokenDeployed 0 #6450 {"decimals":"18","name":"Test","owner":"0xa11aae29840fbb5c86e6fd4cf809eba183aef433","ownerFee":"5000000000000000000","symbol":"TEST","token":"0x3009aea8fd86721a76b28be3e85ae54d347ee2bd","totalSupply":"1e+27","uiFee":"4999999999999999999","uiFeeAccount":"0xa55a151eb00fded1634d27d1127b4be4627079ea"}
+
+tokenContractAddress=Token 'TEST' 'Test':0x3009
+token.owner/new=User1:0xa22a/Null:0x0000
+token.details='TEST' 'Test' 18 dp
+token.totalSupply=1000000000
+token.Transfer 0 #6450 from=Null:0x0000 to=User1:0xa22a tokens=1000000000
+
+---------- Test second init ----------
+user2: 0xa33a6c312d9ad0e0f2e95541beed0cc081621fd0
+symbol: TEST2
+name: Test 2
+decimals: 18
+totalSupply: 1.000000001e+27
+ # Account                                             EtherBalanceChange                          Token Name
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+ 0 0xa00af22d07c87d96eeeb0ed583f8f6ac7812827e        0.015907420000000000           0.000000000000000000 Miner
+ 1 0xa11aae29840fbb5c86e6fd4cf809eba183aef433        4.989634990000000000           0.000000000000000000 Deployer
+ 2 0xa22ab8a9d641ce77e06d98b7d7065d324d3d6976      -10.005409329999999999  1000000000.000000000000000000 User1
+ 3 0xa33a6c312d9ad0e0f2e95541beed0cc081621fd0       -0.000133080000000000           0.000000000000000000 User2
+ 4 0xa44a08d3f6933c69212114bb66e2df1813651844        0.000000000000000000           0.000000000000000000 User3
+ 5 0xa55a151eb00fded1634d27d1127b4be4627079ea        4.999999999999999999           0.000000000000000000 UI Fee Account
+ 6 0xe6faa6fd9baba50ebb05eadc8fad293e4d30d32d        0.000000000000000000           0.000000000000000000 TokenFactory
+ 7 0x3009aea8fd86721a76b28be3e85ae54d347ee2bd        0.000000000000000000           0.000000000000000000 Token 'TEST' 'Test'
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+                                                                           1000000000.000000000000000000 Total Token Balances
+-- ------------------------------------------ --------------------------- ------------------------------ ---------------------------
+
+PASS Test second init - expecting init() to fail
+testSecondInit_1Tx status=0x0 Failure gas=2000000 gasUsed=26616 costETH=0.00013308 costUSD=0.0180869028 @ ETH/USD=135.91 gasPrice=5 gwei block=6453 txIx=0 txId=0x31643039bacf410d355027ee0d2d3d159895acf9a301a9735e7cbfaea4467e12 @ 1553231804 Fri, 22 Mar 2019 05:16:44 UTC
+
+tokenContractAddress=Token 'TEST' 'Test':0x3009
+token.owner/new=User1:0xa22a/Null:0x0000
+token.details='TEST' 'Test' 18 dp
+token.totalSupply=1000000000
+
