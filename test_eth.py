@@ -6,6 +6,7 @@ import sys
 
 
 import dividend_token
+import dividend_token_eth
 import dream_frame_tokens
 import crowdsale_token
 import crowdsale_contract
@@ -20,8 +21,8 @@ from flatten import flatten_contracts
 
 
 if __name__ == '__main__':
-    f = open("01_test_output.txt", 'w')
-    sys.stdout = f
+    #f = open("01_test_output.txt", 'w')
+    #sys.stdout = f
     #--------------------------------------------------------------
     # Initialisation
     #--------------------------------------------------------------
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     print_break('Testing: Deposit ETH to Frames Crowdsale')
     deposit_eth(w3,crowdsale, accounts[1], Web3.toWei(500, "ether"))
     print_balances(frame_token, accounts)
-    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address, max_royalty_frames)
+    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address)
 
     crowdsale_contract.set_royalty_crowdsale(owner, crowdsale,royalty_crowdsale_contract.address)
 
@@ -91,12 +92,12 @@ if __name__ == '__main__':
 
     # Offline purchase
     print_break('Testing: Offline Purchases in USD')
-    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 5000)
+    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 10000)
 
     # Change bonusOffList
     crowdsale_contract.set_bonus(owner, crowdsale, 20)
 
-    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[4], 5000)
+    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[4], 20000)
     # AG: Note, fails by design with number > maxFrames
     #crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 94302)
     #print_balances(frame_token, accounts)
@@ -104,8 +105,7 @@ if __name__ == '__main__':
     #print_balances(frame_token, accounts)
 
     # Test overflow of ether and ETH refund
-    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(30000, "ether"))
-    print_balances(frame_token, accounts)
+    deposit_eth(w3,crowdsale, accounts[2], Web3.toWei(200, "ether"))
 
     deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(30000, "ether"))
     print_balances(frame_token, accounts)
@@ -122,15 +122,15 @@ if __name__ == '__main__':
     #--------------------------------------------------------------
     # Test dividends
     #--------------------------------------------------------------
-    print_break('Testing: Dividend Deposits')
+    print_break('Testing: Dividend Payments')
     # AG: Deposit ETH into Royalty contract
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
     deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(30000, "ether"))
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    dividend_token.get_dividends_owing(royalty_token, accounts[2])
+    dividend_token.get_last_eth_points(royalty_token, accounts[2])
     # AG: Get contract balance working - Check examples
     #etherBalance = w3.fromWei(w3.eth.getBalance(royalty_token.address), "ether")
     #print('Royalty Contract ETH Balance: {}'.format(etherBalance))
@@ -138,72 +138,32 @@ if __name__ == '__main__':
     # AG: Transfer tokens
     # Unlock transfers for account
     dividend_token.unlock_account(owner, royalty_token, accounts[2])
-
     #dividend_token.unlock_account(owner, royalty_token, accounts[1])
-    print_balances(royalty_token, accounts)
 
     erc20.check_transfer(royalty_token, accounts[2], accounts[3], 200 * (10 ** decimals))
     print_balances(royalty_token, accounts)
-    print_break('Testing: Dividends After Transfers')
+    print_break('Testing: Withdraw Dividends')
 
     # AG: Claim dividends from each accounts
+    dividend_token.update_account(royalty_token, accounts[2])
+    dividend_token.get_dividends_owing(royalty_token, accounts[2])
+    dividend_token.get_last_eth_points(royalty_token, accounts[2])
+    dividend_token.get_dividends_owing(royalty_token, accounts[3])
+    dividend_token.get_last_eth_points(royalty_token, accounts[3])
+
     dividend_token.print_dividend_contract(royalty_token)
-    dividend_token.get_unclaimed_dividends(royalty_token)
-    dividend_token.update_account(royalty_token, accounts[2])
-    dividend_token.update_account(royalty_token, accounts[3])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
-    dividend_token.update_account(royalty_token, accounts[2])
-    dividend_token.update_account(royalty_token, accounts[3])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-    print_break('Testing: Dividends After Multiple One Way Transfers')
-
-    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 20 * (10 ** decimals))
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 20 * (10 ** decimals))
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 40 * (10 ** decimals))
-    erc20.check_transfer(royalty_token, accounts[1], accounts[3], 20 * (10 ** decimals))
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
     dividend_token.print_dividend_account(royalty_token, accounts[2])
     dividend_token.print_dividend_account(royalty_token, accounts[3])
 
 
-    print_break('Testing: Withdraw Dividends')
-    #dividend_token.withdraw_dividends(royalty_token, accounts[3])
-    #dividend_token.withdraw_dividends(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
-    erc20.check_transfer(royalty_token, accounts[2], accounts[3], 30 * (10 ** decimals))
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(10000, "ether"))
-    dividend_token.update_account(royalty_token, accounts[1])
-    dividend_token.update_account(royalty_token, accounts[2])
-    dividend_token.update_account(royalty_token, accounts[3])
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
-    dividend_token.get_unclaimed_dividends(royalty_token)
-    dividend_token.get_total_dividend_points(royalty_token)
-    dividend_token.withdraw_dividends(royalty_token, accounts[1])
+
+    # AG Issue
     dividend_token.withdraw_dividends(royalty_token, accounts[2])
-    dividend_token.withdraw_dividends(royalty_token, accounts[3])
-    dividend_token.print_dividend_account(royalty_token, accounts[1])
-    dividend_token.print_dividend_account(royalty_token, accounts[2])
-    dividend_token.print_dividend_account(royalty_token, accounts[3])
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
+    dividend_token.get_dividends_owing(royalty_token, accounts[2])
 
     # AG: Test if any funds are left
-    print_balances(frame_token, accounts)
     print_balances(royalty_token, accounts)
 
     #--------------------------------------------------------------
@@ -213,4 +173,4 @@ if __name__ == '__main__':
     dream_frame_tokens.test(w3, accounts, os.path.join(CONTRACT_DIR, DFT_PATH), DFT_NAME)
 
     # Print to file
-    f.close()
+    #f.close()

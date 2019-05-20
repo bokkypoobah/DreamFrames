@@ -11,7 +11,7 @@ pragma solidity ^0.5.4;
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "../Shared/Owned.sol";
+import "../Shared/Operated.sol";
 import "../Shared/SafeMath.sol";
 import "../Shared/BTTSTokenInterface120.sol";
 import "./PriceFeedInterface.sol";
@@ -20,7 +20,7 @@ import "../RoyaltyToken/WhiteListInterface.sol";
 // ----------------------------------------------------------------------------
 // DreamFramesToken Contract
 // ----------------------------------------------------------------------------
-contract DreamFramesCrowdsale is Owned {
+contract DreamFramesCrowdsale is Operated {
   using SafeMath for uint256;
 
   uint256 private constant TENPOW18 = 10 ** 18;
@@ -55,28 +55,26 @@ contract DreamFramesCrowdsale is Owned {
   event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedEth);
   event RoyaltyCrowdsaleUpdated(address indexed oldRoyaltyCrowdsaleAddress, address indexed  newRoyaltyCrowdsaleAddres);
 
-  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed,  address _whiteList, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _maxFrames, uint256 _frameUsd, uint256 _bonusOffList) public {
+  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed,  address _whiteList, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _maxFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
       require(_frameRushToken != address(0));
       require(_ethUsdPriceFeed != address(0) );
       require(_wallet != address(0));
       require(_startDate >= now && _endDate > _startDate);
       require(_maxFrames > 0 && _frameUsd > 0);
-      initOwned(msg.sender);
-
-      hardCapUsd = 8500000;
-      // AG: HardCap should be replaced with maxframes x frameUsd
-      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
-      softCapUsd = 2500000;
-      // Softcap must be possible with full sale at discount
-      // And hardCapUsd.div(_frameUsd.mul(_bonusOffList)) > softCapUsd
+      initOperated(msg.sender);
       lockedAccountThresholdUsd = 10000;
+
+      hardCapUsd = _hardCapUsd;
+      softCapUsd = _softCapUsd;
       frameUsd = _frameUsd;
       wallet = _wallet;
       startDate = _startDate;
       endDate = _endDate;
-
       maxFrames = _maxFrames;
       bonusOffList = _bonusOffList;
+
+      require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
+      require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
       frameRushToken = BTTSTokenInterface(_frameRushToken);
       royaltyToken = BTTSTokenInterface(_royaltyToken);
       ethUsdPriceFeed = PriceFeedInterface(_ethUsdPriceFeed);
@@ -133,21 +131,27 @@ contract DreamFramesCrowdsale is Owned {
   function name() public view returns (string memory _name) {
       _name = frameRushToken.name();
   }
+  // ETH per USD from price feed
+  // e.g., 171.123232454415 * 10^18
   function ethUsd() public view returns (uint256 _rate, bool _live) {
       return ethUsdPriceFeed.getRate();
   }
   // USD per frame, with bonus
-  // e.g., 128.238526486472454415 * 10^18
+  // e.g., 128.123412344122 * 10^18
   function frameUsdWithBonus() public view returns (uint256 _rate) {
       _rate = frameUsd.mul(100).div(bonusOffList.add(100));
   }
-  // ETH per parcel, e.g., 6.757061128879679264 * 10^18
+  // ETH per frame, e.g., 2.757061128879679264 * 10^18
   function frameEth() public view returns (uint256 _rate, bool _live) {
       uint256 _ethUsd;
       (_ethUsd, _live) = ethUsd();
       if (_live) {
           _rate = frameUsdWithBonus().mul(TENPOW18).div(_ethUsd);
       }
+  }
+
+  function framesRemaining() public view returns (uint256) {
+    return maxFrames.sub(framesSold);
   }
   function pctSold() public view returns (uint256) {
     return framesSold.mul(100).div(maxFrames);
@@ -198,8 +202,13 @@ contract DreamFramesCrowdsale is Owned {
     ethToTransfer = frames.mul(_frameEth);
   }
 
+  function calculateRoyaltyFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+      (frames, ethToTransfer) = calculateFrames(ethAmount);
+
+  }
+
   function () external payable {
-    // require(now >= startDate && now <= endDate);  // AG: To reenable
+    require(now >= startDate && now <= endDate);
 
     // Get number of frames, will revert if sold out
     uint256 ethToTransfer;
@@ -233,7 +242,6 @@ contract DreamFramesCrowdsale is Owned {
       require(frameRushToken.mint(tokenOwner, frames.mul(TENPOW18), lockAccount));
       framesSold = framesSold.add(frames);
       if (framesSold >= maxFrames) {
-          // frameRushToken.disableMinting();
           finalised = true;
       }
   }
@@ -253,9 +261,16 @@ contract DreamFramesCrowdsale is Owned {
   }
 
   // Contract owner allocates frames to tokenOwner for offline purchase
-  // AG: Should contributedEth also be incremented for hardCap?
-  function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOwner {
+
+  function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOperator {
       require(!finalised);
+      require(frames > 0);
+      require(framesSold.add(frames) <= maxFrames);
+      (uint256 _frameEth, bool _live) = frameEth();
+      require(_live);
+      uint256 ethToTransfer = frames.mul(_frameEth);
+      contributedEth = contributedEth.add(ethToTransfer);
+      accountEthAmount[tokenOwner] = accountEthAmount[tokenOwner].add(ethToTransfer);
       claimFrames(tokenOwner,frames);
       emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
   }
@@ -264,15 +279,7 @@ contract DreamFramesCrowdsale is Owned {
   function finalise() public onlyOwner {
       require(!finalised);
       require(now > endDate || framesSold >= maxFrames);
-      // frameRushToken.disableMinting();
       finalised = true;
   }
-  /*
-  //  AG: To Remove
-  function withdrawFunds () public  onlyOwner {
-    require(finalised);
-    require(now > endDate || framesSold >= maxFrames);
-    wallet.transfer(address(this).balance);
-  }
-  */
+
 }
